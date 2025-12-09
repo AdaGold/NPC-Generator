@@ -27,20 +27,15 @@ def get_characters():
     character_query = db.select(Character)
 
     characters = db.session.scalars(character_query)
-    response = []
-
-    for character in characters:
-        response.append(
-            {
-                "id": character.id,
-                "name": character.name,
-                "personality": character.personality,
-                "occupation": character.occupation,
-                "age": character.age
-            }
-        )
+    response = [character.to_dict() for character in characters]
 
     return response
+
+
+@bp.get("/<char_id>")
+def get_character(char_id):
+    character = validate_model(Character, char_id)
+    return character.to_dict()
 
 
 @bp.get("/<char_id>/greetings")
