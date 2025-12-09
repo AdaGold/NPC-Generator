@@ -6,19 +6,21 @@ from sqlalchemy import func, union, except_
 
 bp = Blueprint("characters", __name__, url_prefix="/characters")
 
+
 @bp.post("")
 def create_character():
 
     request_body = request.get_json()
-    try: 
+    try:
         new_character = Character.from_dict(request_body)
         db.session.add(new_character)
         db.session.commit()
 
         return new_character.to_dict(), 201
-    
+
     except KeyError as e:
         abort(make_response({"message": f"missing required value: {e}"}, 400))
+
 
 @bp.get("")
 def get_characters():
@@ -30,33 +32,37 @@ def get_characters():
     for character in characters:
         response.append(
             {
-                "id" : character.id,
-                "name" : character.name,
-                "personality" : character.personality,
-                "occupation" : character.occupation,
-                "age" : character.age
+                "id": character.id,
+                "name": character.name,
+                "personality": character.personality,
+                "occupation": character.occupation,
+                "age": character.age
             }
         )
 
     return response
 
+
 @bp.get("/<char_id>/greetings")
 def get_greetings(char_id):
     pass
+
 
 @bp.post("/<char_id>/generate")
 def add_greetings(char_id):
     pass
 
+
 def generate_greetings(character):
     pass
 
-def validate_model(cls,id):
+
+def validate_model(cls, id):
     try:
         id = int(id)
     except:
         response = {"message": f"{cls.__name__} {id} invalid"}
-        abort(make_response(response , 400))
+        abort(make_response(response, 400))
 
     query = db.select(cls).where(cls.id == id)
     model = db.session.scalar(query)
