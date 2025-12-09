@@ -31,27 +31,22 @@ def get_characters():
     character_query = db.select(Character)
 
     characters = db.session.scalars(character_query)
-    response = []
-
-    for character in characters:
-        response.append(character.to_dict())
+    response = [character.to_dict() for character in characters]
 
     return response
+
+
+@bp.get("/<char_id>")
+def get_character(char_id):
+    character = validate_model(Character, char_id)
+    return character.to_dict()
 
 
 @bp.get("/<char_id>/greetings")
 def get_greetings(char_id):
     character = validate_model(Character, char_id)
 
-    if not character.greetings:
-        return {"message": f"No greetings found for {character.name}"}, 201
-
-    response = {"character_name": character.name, "greetings": []}
-
-    for greeting in character.greetings:
-        response["greetings"].append({
-            "greeting": greeting.greeting_text
-        })
+    response = [greeting.to_dict() for greeting in character.greetings]
 
     return response
 
@@ -69,8 +64,7 @@ def add_greetings(char_id):
 
     for greeting in greetings:
         new_greeting = Greeting(
-            # Strip leading and trailing quotes and commas from each greeting
-            greeting_text=greeting.strip("\"',"),
+            greeting_text=greeting,
             character=character_obj
         )
         new_greetings.append(new_greeting)
@@ -86,7 +80,11 @@ def generate_greetings(character):
     response = client.models.generate_content(
         model="gemini-2.5-flash", contents=input_message
     )
-    return response.text.splitlines()
+
+    lines = response.text.splitlines()
+
+    # Strip leading and trailing quotes and commas from each greeting
+    return [line.strip("\"',") for line in lines]
 
 
 def validate_model(cls, id):
