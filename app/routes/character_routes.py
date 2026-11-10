@@ -78,7 +78,7 @@ def add_greetings(char_id):
 def generate_greetings(character):
     input_message = f"I am writing a fantasy RPG video game. I have an npc named {character.name} who is {character.age} years old. They are a {character.occupation} who has a {character.personality} personality. Please generate a Python style list of 10 stock phrases they might use when the main character talks to them. Please return just the list without a variable name and square brackets."
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=input_message
+        model="gemini-3.5-flash-lite", contents=input_message
     )
 
     lines = response.text.splitlines()
